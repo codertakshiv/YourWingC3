@@ -47,7 +47,7 @@ All pin assignments are defined in `config.h`:
 | I2C SDA (MPU6050) | **GPIO 8** | I2C data (default Wire) |
 | I2C SCL (MPU6050) | **GPIO 9** | I2C clock (default Wire) |
 
-> **Note:** GPIO 8 is shared between the onboard LED and I2C SDA. This works because the LED is driven as a simple digital output while I2C SDA is an open-drain line — the LED LOW/HIGH toggle does not conflict with I2C communication on this pin.
+> **WARNING — Pin conflict (GPIO 8):** The status LED and I2C SDA are both assigned to **GPIO 8**. The LED is driven as a push-pull output (`pinMode(OUTPUT)` + `digitalWrite`) while I2C SDA requires open-drain signaling. This is a **real hardware conflict** — driving the pin HIGH/LOW for the LED will corrupt I2C transactions. It may appear to work by luck of timing (LED updates at loop end, I2C reads at loop start), but any change to loop ordering or interrupt timing could cause IMU read failures. **Fix:** Move the LED to a free GPIO (e.g. GPIO 2) by changing `PIN_LED` in `config.h` and rewiring the LED. The default `Wire.begin()` call in `imu.cpp` uses the ESP32-C3's hardcoded I2C defaults (GPIO 8 = SDA, GPIO 9 = SCL), so the I2C side is correct — only the LED needs to move.
 
 ## Getting Started
 
@@ -132,6 +132,7 @@ Connect via USB Serial at **115200 baud**. Send any of the following commands (t
 - **Single-core WiFi + flight control** — the ESP32-C3 runs both the WiFi stack and the 250 Hz flight loop on one core. The firmware uses `yield()` during loop timing to prevent WiFi starvation, but jitter may occur under heavy network load.
 - **Battery monitoring not wired by default** — the code exists but is disabled. You need to add a voltage divider to GPIO 6 and uncomment the battery code to use it.
 - **No persistent configuration** — all PID gains and tuning parameters reset on every reboot.
+- **GPIO 8 pin conflict** — the status LED and I2C SDA share GPIO 8 (see Wiring section above). Move the LED to a free pin to avoid potential I2C corruption.
 
 ## License
 
