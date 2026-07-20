@@ -14,7 +14,7 @@
 #define PIN_MOTOR_FL    1      // Front-Left motor  (CW)
 #define PIN_MOTOR_RR    4      // Rear-Right motor  (CW)
 #define PIN_BATTERY     6       // ADC input (voltage divider)
-#define PIN_LED         8       // Onboard LED (active LOW)
+#define PIN_LED         8       // Status LED (active LOW, open-drain — shared with I2C SDA)
 
 // === Motor PWM Settings ===
 #define PWM_FREQUENCY   20000   // 20kHz - above audible range

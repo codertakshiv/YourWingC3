@@ -100,7 +100,7 @@ void setup() {
     Serial.println("================================");
 
     // Status LED
-    pinMode(PIN_LED, OUTPUT);
+    pinMode(PIN_LED, OUTPUT_OPEN_DRAIN);
     ledOff();
 
     // Initialize IMU

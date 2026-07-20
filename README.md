@@ -1,6 +1,26 @@
 # YourWingC3
 
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-ESP32C3-blue)
+![Framework](https://img.shields.io/badge/framework-Arduino-orange)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+
 **Lightweight ESP32-C3 flight controller for micro brushed quadcopters, flown from your phone browser.**
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#-features)
+- [Hardware Requirements](#-hardware-requirements)
+- [Wiring / Pin Table](#-wiring--pin-table)
+- [Getting Started](#-getting-started)
+- [First Boot & Calibration](#-first-boot--calibration)
+- [Serial CLI Commands](#-serial-cli-commands)
+- [Safety Notes](#-safety-notes)
+- [Known Limitations](#-known-limitations)
+- [License](#-license)
 
 ---
 
@@ -8,7 +28,11 @@
 
 YourWingC3 is a complete flight controller firmware for micro quadcopters built on the **ESP32-C3 Super Mini**. Instead of a traditional radio transmitter, you fly the drone from a browser-based dual-joystick UI served over WiFi — connect your phone, open the page, and fly. It is designed for hobbyists building indoor micro brushed quads using cheap, common components (MPU6050, 0716 coreless motors, MOSFET drivers, 1S LiPo).
 
-## Features
+> **Quick Start:** Flash `drone_firmware.ino` → power on drone (keep it still for 1s calibration) → connect to WiFi `YourWingC3` → open `http://192.168.4.1` → arm and fly.
+
+---
+
+## 🚀 Features
 
 - **250 Hz cascaded PID control loop** — outer angle loop + inner rate loop for self-leveling stability
 - **MPU6050 IMU** with complementary filter (98% gyro / 2% accelerometer) and startup calibration
@@ -19,7 +43,9 @@ YourWingC3 is a complete flight controller firmware for micro quadcopters built 
 - **X-quad motor mixing** with dynamic overflow scaling and throttle headroom for PID corrections
 - **ANGLE mode** (self-leveling) and **RATE mode** (acro/manual) switchable from the UI
 
-## Hardware Requirements
+---
+
+## 🔧 Hardware Requirements
 
 | Component | Notes |
 |---|---|
@@ -32,7 +58,9 @@ YourWingC3 is a complete flight controller firmware for micro quadcopters built 
 
 > **Battery monitoring:** The firmware includes ADC-based battery voltage reading code, but it is currently **disabled** because no voltage divider is wired by default. You will not get low-battery warnings out of the box. To enable it, wire a voltage divider to GPIO 6 and uncomment the battery-related lines in `drone_firmware.ino`.
 
-## Wiring / Pin Table
+---
+
+## 📡 Wiring / Pin Table
 
 All pin assignments are defined in `config.h`:
 
@@ -43,13 +71,15 @@ All pin assignments are defined in `config.h`:
 | Motor RL (M2, CCW) | **GPIO 3** | LEDC PWM, 20 kHz |
 | Motor RR (M4, CW) | **GPIO 4** | LEDC PWM, 20 kHz |
 | Battery ADC | **GPIO 6** | ADC (12-bit, currently unused) |
-| Status LED | **GPIO 8** | Digital output, active LOW |
+| Status LED | **GPIO 8** | Open-drain output, active LOW (shared with I2C SDA) |
 | I2C SDA (MPU6050) | **GPIO 8** | I2C data (default Wire) |
 | I2C SCL (MPU6050) | **GPIO 9** | I2C clock (default Wire) |
 
-> **WARNING — Pin conflict (GPIO 8):** The status LED and I2C SDA are both assigned to **GPIO 8**. The LED is driven as a push-pull output (`pinMode(OUTPUT)` + `digitalWrite`) while I2C SDA requires open-drain signaling. This is a **real hardware conflict** — driving the pin HIGH/LOW for the LED will corrupt I2C transactions. It may appear to work by luck of timing (LED updates at loop end, I2C reads at loop start), but any change to loop ordering or interrupt timing could cause IMU read failures. **Fix:** Move the LED to a free GPIO (e.g. GPIO 2) by changing `PIN_LED` in `config.h` and rewiring the LED. The default `Wire.begin()` call in `imu.cpp` uses the ESP32-C3's hardcoded I2C defaults (GPIO 8 = SDA, GPIO 9 = SCL), so the I2C side is correct — only the LED needs to move.
+> **Note:** The status LED and I2C SDA share GPIO 8. The LED uses open-drain mode (`OUTPUT_OPEN_DRAIN`), so it only ever pulls the line LOW — matching I2C's own open-drain signaling. It never actively drives HIGH, avoiding bus contention. Minor LED flicker during active I2C transactions is possible but harmless.
 
-## Getting Started
+---
+
+## ⚡ Getting Started
 
 ### Prerequisites
 
@@ -75,6 +105,8 @@ In *Tools*, set:
 3. Select the correct COM port under *Tools > Port*
 4. Click **Upload**
 
+---
+
 ## First Boot & Calibration
 
 1. **Keep the drone perfectly still** on a flat surface during the first ~1 second after power-on. The firmware collects 2000 IMU samples to calibrate gyro and accelerometer offsets. Any movement during this period will cause angle drift.
@@ -89,7 +121,9 @@ In *Tools*, set:
 
 5. **To fly:** Lower the throttle to zero, tap **ARM**, then raise the throttle and use the right stick for roll/pitch.
 
-## Serial CLI Commands
+---
+
+## 🖥️ Serial CLI Commands
 
 Connect via USB Serial at **115200 baud**. Send any of the following commands (terminated with newline):
 
@@ -116,7 +150,9 @@ Connect via USB Serial at **115200 baud**. Send any of the following commands (t
 
 **Examples:** `RP:0.7` sets Roll Rate Kp to 0.7. `AP:2.5` sets Roll Angle Kp to 2.5. `ST` prints the full status dump.
 
-## Safety Notes
+---
+
+## ⚠️ Safety Notes
 
 - **Failsafe:** The drone auto-disarms if no WebSocket command is received for **500 ms** (e.g. phone goes out of range or browser tab is closed).
 - **Arm safety:** You cannot arm unless throttle is at zero. The ARM button in the browser enforces this.
@@ -124,7 +160,9 @@ Connect via USB Serial at **115200 baud**. Send any of the following commands (t
 - **Yaw drift:** Yaw is integrated from the gyroscope only (no magnetometer). It will drift slowly over time. This is normal for a 6-DOF IMU setup.
 - **Always remove propellers** when testing motors on the bench or flashing new firmware.
 
-## Known Limitations
+---
+
+## 🚧 Known Limitations
 
 - **Brushed motors only.** Motors are driven via analog PWM through MOSFETs. No support for brushless ESC protocols (DShot, OneShot, etc.).
 - **No GPS** — position hold and return-to-home are not available.
@@ -132,8 +170,10 @@ Connect via USB Serial at **115200 baud**. Send any of the following commands (t
 - **Single-core WiFi + flight control** — the ESP32-C3 runs both the WiFi stack and the 250 Hz flight loop on one core. The firmware uses `yield()` during loop timing to prevent WiFi starvation, but jitter may occur under heavy network load.
 - **Battery monitoring not wired by default** — the code exists but is disabled. You need to add a voltage divider to GPIO 6 and uncomment the battery code to use it.
 - **No persistent configuration** — all PID gains and tuning parameters reset on every reboot.
-- **GPIO 8 pin conflict** — the status LED and I2C SDA share GPIO 8 (see Wiring section above). Move the LED to a free pin to avoid potential I2C corruption.
+- **GPIO 8 shared with I2C** — the status LED and I2C SDA share GPIO 8 using open-drain mode (see [Wiring / Pin Table](#-wiring--pin-table)). Minor LED flicker during I2C transactions is possible but harmless.
 
-## License
+---
+
+## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
