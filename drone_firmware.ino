@@ -1,5 +1,5 @@
 // ============================================================
-//  COMET DRONE - Flight Controller Firmware
+//  YourWingC3 - Flight Controller Firmware
 //  ESP32-C3 Super Mini | MPU6050 | 0716 Coreless Motors
 //  X-Quad Configuration | WiFi WebSocket Control
 // ============================================================
@@ -10,8 +10,8 @@
 //
 //  Pin Wiring:
 //    MPU6050 SDA → Default  MPU6050 SCL → Default
-//    Motor FR    → GPIO0    Motor RL    → GPIO1
-//    Motor FL    → GPIO3    Motor RR    → GPIO10
+//    Motor FR    → GPIO0    Motor RL    → GPIO3
+//    Motor FL    → GPIO1    Motor RR    → GPIO4
 //    Battery ADC → GPIO6    LED         → GPIO8
 //
 // ============================================================
@@ -95,7 +95,7 @@ void setup() {
     delay(500);
     Serial.println();
     Serial.println("================================");
-    Serial.println("  COMET DRONE - Flight Controller");
+    Serial.println("  YourWingC3 - Flight Controller");
     Serial.println("  ESP32-C3 | MPU6050 | 0716 Motors");
     Serial.println("================================");
 
@@ -267,8 +267,6 @@ void loop() {
     // Fast blink = armed, slow blink = disarmed, solid = no connection
     if (armed) {
         digitalWrite(PIN_LED, (millis() / 100) % 2 == 0 ? LOW : HIGH);
-    } else if (false) {  // Battery warning LED disabled
-        digitalWrite(PIN_LED, (millis() / 200) % 2 == 0 ? LOW : HIGH);
     } else {
         digitalWrite(PIN_LED, wifiCtrl.isConnected() ? HIGH : ((millis() / 1000) % 2 == 0 ? LOW : HIGH));
     }

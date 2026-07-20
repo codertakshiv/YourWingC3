@@ -9,7 +9,7 @@ const char WEB_PAGE_HTML[] PROGMEM = R"rawliteral(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1">
-<title>Comet Drone</title>
+<title>YourWingC3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;touch-action:none}
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
@@ -94,7 +94,7 @@ min-width:50px}
 
 <!-- Header -->
 <div class="hdr">
-  <div class="logo">COMET DRONE</div>
+  <div class="logo">YOURWINGC3</div>
   <div class="status">
     <span id="armBadge" style="font-size:10px;font-weight:600;color:var(--accent2)">DISARMED</span>
     <div class="conn-dot" id="connDot"></div>

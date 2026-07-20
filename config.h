@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // ============================================================
-//  COMET DRONE - Configuration
+//  YourWingC3 - Configuration
 //  ESP32-C3 Super Mini | MPU6050 | 0716 Coreless Motors
 //  X-Quad Configuration
 // ============================================================
@@ -65,7 +65,7 @@
 #define LOOP_TIME_US      4000    // Microseconds per loop (1e6/250)
 
 // === WiFi Settings ===
-#define WIFI_SSID         "CometDrone"
+#define WIFI_SSID         "YourWingC3"
 #define WIFI_PASSWORD     "drone1234"
 #define WIFI_CHANNEL      6
 #define WS_PORT           81      // WebSocket port
